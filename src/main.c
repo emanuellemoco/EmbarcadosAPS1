@@ -40,7 +40,41 @@
  	#define BUZ_PIO_IDX		  13
  	#define BUZ_PIO_IDX_MASK (1 << BUZ_PIO_IDX)
 	
-	//Musica Mario (fonte: https://www.princetronics.com/supermariothemesong/)
+	//Musica Mario (fonte: https://www.princetronics.com/supermariothemesong/) //arrumar fonte
+
+	#define NOTE_C4  262   //Defining note frequency
+	#define NOTE_D4  294
+	#define NOTE_E4  330
+	#define NOTE_F4  349
+	#define NOTE_G4  392
+	#define NOTE_A4  440
+	#define NOTE_B4  494
+	#define NOTE_C5  523
+	#define NOTE_D5  587
+	#define NOTE_E5  659
+	#define NOTE_F5  698
+	#define NOTE_G5  784
+	#define NOTE_A5  880
+	#define NOTE_B5 988
+	#define c  261
+	#define d  294
+	#define e  329
+	#define f  349
+	#define g  391
+	#define gS  415
+	#define a  440
+	#define aS  455
+	#define b  466
+	#define cH  523
+	#define cSH  554
+	#define dH  587
+	#define dSH  622
+	#define eH  659
+	#define fH  698
+	#define fSH  740
+	#define gH  784
+	#define gSH  830
+	#define aH  880
 	#define NOTE_B0  31
 	#define NOTE_C1  33
 	#define NOTE_CS1 35
@@ -130,63 +164,59 @@
 	#define NOTE_CS8 4435
 	#define NOTE_D8  4699
 	#define NOTE_DS8 4978
-
-	#define melodyPin 3
-//Mario main theme melody
-int melody[] = {
-	NOTE_E7, NOTE_E7, 0, NOTE_E7,
-	0, NOTE_C7, NOTE_E7, 0,
-	NOTE_G7, 0, 0,  0,
-	NOTE_G6, 0, 0, 0,
-	
-	NOTE_C7, 0, 0, NOTE_G6,
-	0, 0, NOTE_E6, 0,
-	0, NOTE_A6, 0, NOTE_B6,
-	0, NOTE_AS6, NOTE_A6, 0,
-	
-	NOTE_G6, NOTE_E7, NOTE_G7,
-	NOTE_A7, 0, NOTE_F7, NOTE_G7,
-	0, NOTE_E7, 0, NOTE_C7,
-	NOTE_D7, NOTE_B6, 0, 0,
-	
-	NOTE_C7, 0, 0, NOTE_G6,
-	0, 0, NOTE_E6, 0,
-	0, NOTE_A6, 0, NOTE_B6,
-	0, NOTE_AS6, NOTE_A6, 0,
-	
-	NOTE_G6, NOTE_E7, NOTE_G7,
-	NOTE_A7, 0, NOTE_F7, NOTE_G7,
-	0, NOTE_E7, 0, NOTE_C7,
-	NOTE_D7, NOTE_B6, 0, 0
-};
-//Mario main them tempo
-int tempo[] = {
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	
-	9, 9, 9,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	
-	9, 9, 9,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-	12, 12, 12, 12,
-};
-
+		int mario_theme_notes[] = { //by Prince @ princetronics.com
+			NOTE_E7, NOTE_E7, 0, NOTE_E7,
+			0, NOTE_C7, NOTE_E7, 0,
+			NOTE_G7, 0, 0,  0,
+			NOTE_G6, 0, 0, 0,
+			
+			NOTE_C7, 0, 0, NOTE_G6,
+			0, 0, NOTE_E6, 0,
+			0, NOTE_A6, 0, NOTE_B6,
+			0, NOTE_AS6, NOTE_A6, 0,
+			
+			NOTE_G6, NOTE_E7, NOTE_G7,
+			NOTE_A7, 0, NOTE_F7, NOTE_G7,
+			0, NOTE_E7, 0, NOTE_C7,
+			NOTE_D7, NOTE_B6, 0, 0,
+			
+			NOTE_C7, 0, 0, NOTE_G6,
+			0, 0, NOTE_E6, 0,
+			0, NOTE_A6, 0, NOTE_B6,
+			0, NOTE_AS6, NOTE_A6, 0,
+			
+			NOTE_G6, NOTE_E7, NOTE_G7,
+			NOTE_A7, 0, NOTE_F7, NOTE_G7,
+			0, NOTE_E7, 0, NOTE_C7,
+			NOTE_D7, NOTE_B6, 0, 0
+		};
+		//Mario main them tempo by Prince
+		int mario_theme_tempo[] = {
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			
+			112, 112, 112,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			
+			112, 112, 112,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+			83, 83, 83, 83,
+		};
 /************************************************************************/
 /* constants                                                            */
 /************************************************************************/
@@ -237,9 +267,6 @@ void init(void)
 	//BUZZER
 	pmc_enable_periph_clk(BUZ_PIO_ID); //inicializa pio do buzzer
 	pio_set_output(BUZ_PIO, BUZ_PIO_IDX_MASK, 0, 0,0 );
-	
-
-
 }
 
 /************************************************************************/
@@ -255,7 +282,7 @@ int main(void)
 	// aplicacoes embarcadas não devem sair do while(1).
 	
 	while(1){
-// 						pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
+//						pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
 // 						pio_set(PIOC, BUZ_PIO_IDX_MASK);		  //.
 // 						delay_ms(2);                        // Delay por software de 200 ms
 // 						pio_clear(PIOC, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED
@@ -265,48 +292,46 @@ int main(void)
 //arrrumar o 78(tamanho de tempo)
 
 
-	for (int i=0 ;  i< 78 ; i++){
-			float qtd;
-			if (melody[i]!=0){float qtd = tempo[i]/ ( ((1.0/(float)(melody[i]))*1000000.0) * 2) ;}
-			else{						delay_ms(tempo[i]); }
-				//if (melody[i]!=0){
-				for (int j=0 ; j <= qtd ; j++){
-					//if (melody[i]!=0){
-						pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
-						pio_set(PIOC, BUZ_PIO_IDX_MASK);
-						delay_us( (1.0/ (melody[i]) ) *1000000);
-						pio_clear(PIOC, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED
-						pio_clear(PIOC, BUZ_PIO_IDX_MASK);
-						delay_us( (1.0/ (melody[i]) ) *1000000);
-					//}
-				}
-				//delay_ms(tempo[i] * 10.3);
-				}	
-				
-
-
-
 // 	for (int i=0 ;  i< 78 ; i++){
 // 			float qtd;
-// 			if (melody[i]!=0){float qtd = tempo[i]/ ((1.0/(float)(melody[i]))*1000.0) ;}
-// 			else{qtd=1.0;}
-// 				if (melody[i]!=0){
+// 			if (melody[i]!=0){float qtd = tempo[i]/ ( ((1.0/(float)(melody[i]))*1000000.0) * 2) ;}
+// 			else{						delay_ms(tempo[i]); }
+// 				//if (melody[i]!=0){
 // 				for (int j=0 ; j <= qtd ; j++){
 // 					//if (melody[i]!=0){
 // 						pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
-// 						pio_set(PIOC, BUZ_PIO_IDX_MASK);		  
-// 						delay_us( (1.0/ (2.0*melody[i]) ) *1000000);                       
+// 						pio_set(PIOC, BUZ_PIO_IDX_MASK);
+// 						delay_us( (1.0/ (melody[i]) ) *1000000);
 // 						pio_clear(PIOC, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED
-// 						pio_clear(PIOC, BUZ_PIO_IDX_MASK);	  
-// 						delay_us( (1.0/ (2.0*melody[i]) ) *1000000);                        
-// 					}
+// 						pio_clear(PIOC, BUZ_PIO_IDX_MASK);
+// 						delay_us( (1.0/ (melody[i]) ) *1000000);
+// 					//}
 // 				}
-// 					else{
-// 						delay_ms(tempo[i]); 
-// 					}
-// 				}
-			
-					
+// 				//delay_ms(tempo[i] * 10.3);
+// 				}	
+// 				
+
+	int size_mario = sizeof(mario_theme_tempo) / sizeof(int);
+	for (int i=0 ;  i< size_mario ; i++){
+		if (mario_theme_notes[i] != 0 ){	
+		
+		float t_delay = 1000.0 /(float)(mario_theme_notes[i])	;
+		for (long j=0 ; j < (mario_theme_tempo[i]/t_delay ); j++){
+			if (mario_theme_tempo[i]!= 0){
+				pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
+				pio_set(PIOC, BUZ_PIO_IDX_MASK);		  
+				delay_us(t_delay*1000.0);
+				pio_clear(PIOC, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED
+				pio_clear(PIOC, BUZ_PIO_IDX_MASK);	  
+				delay_us(t_delay*1000.0);
+			} 				
+		} 
+		}
+ 			else {
+				delay_us(mario_theme_tempo[i]);
+ 			}
+		}
+				
 	}
 	return 0;
 }
