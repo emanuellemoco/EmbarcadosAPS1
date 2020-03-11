@@ -313,25 +313,24 @@ int main(void)
 
 	int size_mario = sizeof(mario_theme_tempo) / sizeof(int);
 	for (int i=0 ;  i< size_mario ; i++){
-		if (mario_theme_notes[i] != 0 ){	
+		if (mario_theme_notes[i] == 0 ){
+				delay_ms(mario_theme_tempo[i]);
+		}
 		
-		float t_delay = 1000.0 /(float)(mario_theme_notes[i])	;
-		for (long j=0 ; j < (mario_theme_tempo[i]/t_delay ); j++){
-			if (mario_theme_tempo[i]!= 0){
-				pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
-				pio_set(PIOC, BUZ_PIO_IDX_MASK);		  
-				delay_us(t_delay*1000.0);
-				pio_clear(PIOC, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED
-				pio_clear(PIOC, BUZ_PIO_IDX_MASK);	  
-				delay_us(t_delay*1000.0);
-			} 				
-		} 
+		else {
+			float t_delay = 1000.0 /(int)(mario_theme_notes[i])	;
+			for (long j=0 ; j < (mario_theme_tempo[i]/t_delay ); j++){
+				if (mario_theme_tempo[i]!= 0){
+					pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
+					pio_set(PIOC, BUZ_PIO_IDX_MASK);		  
+					delay_us(t_delay*1000.0);
+					pio_clear(PIOC, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED
+					pio_clear(PIOC, BUZ_PIO_IDX_MASK);	  
+					delay_us(t_delay*1000.0);
+				} 				
+			}
 		}
- 			else {
-				delay_us(mario_theme_tempo[i]);
- 			}
 		}
-				
 	}
 	return 0;
 }
