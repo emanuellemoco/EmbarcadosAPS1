@@ -368,6 +368,7 @@ void init(void)
 
 void playMusic(int tempo[], int notes[], int size){
 	for (int i=0 ;  i< size ; i++){
+		//se a nota for 0, toca o 0 (silencio) pelo tempo
 		if (notes[i] == 0 ){
 			delay_ms(tempo[i]);
 		}
@@ -384,7 +385,7 @@ void playMusic(int tempo[], int notes[], int size){
 				}
 			}
 		}
-		delay_us(100);
+		delay_us(85); //para dar um pause entre cada nota
 		
 		pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
 	}// fim primeiro for
@@ -405,6 +406,7 @@ int main(void)
 	int imperial_march_size = sizeof(imperial_march_tempo) / sizeof(int);
 	int underworld_size = sizeof(underworld_tempo) / sizeof(int);
 	
+	//por padrao os leds estao ligados
 	pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga
 	pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
 	pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
