@@ -28,6 +28,22 @@
 	#define LED_PIO_ID        12                  // ID do periférico PIOC (controla LED)
 	#define LED_PIO_IDX       8                    // ID do LED no PIO
 	#define LED_PIO_IDX_MASK  (1 << LED_PIO_IDX)   // Mascara para CONTROLARMOS o LED
+	
+	 // Configuracoes dos LEDs
+	#define LED1_PIO			PIOA
+	#define LED1_PIO_ID			ID_PIOA
+	#define LED1_PIO_IDX		0
+	#define LED1_PIO_IDX_MASK	(1 << LED1_PIO_IDX)
+
+	#define LED2_PIO			PIOC
+	#define LED2_PIO_ID			ID_PIOC
+	#define LED2_PIO_IDX		30
+	#define LED2_PIO_IDX_MASK	(1 << LED2_PIO_IDX)
+
+	#define LED3_PIO			PIOB
+	#define LED3_PIO_ID			ID_PIOB
+	#define LED3_PIO_IDX		2
+	#define LED3_PIO_IDX_MASK	(1 << LED3_PIO_IDX)
 
 	// Configuracoes do botao
 	#define BUT_PIO			  PIOA
@@ -40,22 +56,6 @@
  	#define BUZ_PIO_ID		  ID_PIOC
  	#define BUZ_PIO_IDX		  13
  	#define BUZ_PIO_IDX_MASK (1 << BUZ_PIO_IDX)
-	 
-	 // Configuracoes dos LEDs
-	 #define LED1_PIO			PIOA
-	 #define LED1_PIO_ID		ID_PIOA
-	 #define LED1_PIO_IDX		0
-	 #define LED1_PIO_IDX_MASK	(1 << LED1_PIO_IDX)
-
-	 #define LED2_PIO			PIOC
-	 #define LED2_PIO_ID		ID_PIOC
-	 #define LED2_PIO_IDX		30
-	 #define LED2_PIO_IDX_MASK	(1 << LED2_PIO_IDX)
-
-	 #define LED3_PIO			PIOB
-	 #define LED3_PIO_ID		ID_PIOB
-	 #define LED3_PIO_IDX		2
-	 #define LED3_PIO_IDX_MASK	(1 << LED3_PIO_IDX)
 
 	 // Configuracoes do botoes
 	 #define BUT1_PIO			PIOD
@@ -338,9 +338,15 @@ void init(void)
 	//Ativa o PIO na qual o LED foi conectado
 	// para que possamos controlar o LED
 	pmc_enable_periph_clk(LED_PIO_ID);
+	pmc_enable_periph_clk(LED1_PIO_ID);
+	pmc_enable_periph_clk(LED2_PIO_ID);
+	pmc_enable_periph_clk(LED3_PIO_ID);
 	
 	//Inicializa o PC8 como saida
 	pio_set_output(LED_PIO, LED_PIO_IDX_MASK, 0, 0, 0);
+	pio_set_output(LED1_PIO, LED1_PIO_IDX_MASK, 0, 0, 0);
+	pio_set_output(LED2_PIO, LED2_PIO_IDX_MASK, 0, 0, 0);
+	pio_set_output(LED3_PIO, LED3_PIO_IDX_MASK, 0, 0, 0);
 	
 	// Inicializa PIO do botao
 	pmc_enable_periph_clk(BUT_PIO_ID);
@@ -379,6 +385,7 @@ void playMusic(int tempo[], int notes[], int size){
 			}
 		}
 		delay_us(100);
+		
 		pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
 	}// fim primeiro for
 	
@@ -397,11 +404,22 @@ int main(void)
 	int mario_theme_size = sizeof(mario_theme_tempo) / sizeof(int);
 	int imperial_march_size = sizeof(imperial_march_tempo) / sizeof(int);
 	int underworld_size = sizeof(underworld_tempo) / sizeof(int);
+	
+	pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga
+	pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
+	pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
 
+	pio_clear(LED1_PIO, LED1_PIO_IDX_MASK); //liga led
 	playMusic(mario_theme_tempo, mario_theme_notes, mario_theme_size);
+	pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga led
+	
+	pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
 	playMusic(imperial_march_tempo, imperial_march_notes, imperial_march_size);
+	pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
+	
+	pio_clear(LED3_PIO, LED3_PIO_IDX_MASK);
 	playMusic(underworld_tempo, underworld_notes, underworld_size);
-
+	pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
 		
 	}//fim do while
 	return 0;
