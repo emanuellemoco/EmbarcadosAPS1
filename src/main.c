@@ -45,33 +45,34 @@
 	#define LED3_PIO_IDX		2
 	#define LED3_PIO_IDX_MASK	(1 << LED3_PIO_IDX)
 
-	// Configuracoes do botao
-	#define BUT_PIO			  PIOA
-	#define BUT_PIO_ID		  10
-	#define BUT_PIO_IDX		  11
-	#define BUT_PIO_IDX_MASK (1u << BUT_PIO_IDX)
-
-	//.Configuracoes do buzzer no pino PD11
+	//.Configuracoes do buzzer 
  	#define BUZ_PIO			  PIOC
  	#define BUZ_PIO_ID		  ID_PIOC
  	#define BUZ_PIO_IDX		  13
  	#define BUZ_PIO_IDX_MASK (1 << BUZ_PIO_IDX)
-
-	 // Configuracoes do botoes
-	 #define BUT1_PIO			PIOD
-	 #define BUT1_PIO_ID		16
-	 #define BUT1_PIO_IDX		28
-	 #define BUT1_PIO_IDX_MASK	(1u << BUT1_PIO_IDX)
 	 
-	 #define BUT2_PIO			PIOC
-	 #define BUT2_PIO_ID		12
-	 #define BUT2_PIO_IDX		31
-	 #define BUT2_PIO_IDX_MASK	(1u << BUT2_PIO_IDX)
+	// Configuracoes do botao
+	#define BUT_PIO			  PIOA
+	#define BUT_PIO_ID		  ID_PIOA
+	#define BUT_PIO_IDX		  11
+	#define BUT_PIO_IDX_MASK (1u << BUT_PIO_IDX)
 
-	 #define BUT3_PIO			PIOA
-	 #define BUT3_PIO_ID		10
-	 #define BUT3_PIO_IDX		19
-	 #define BUT3_PIO_IDX_MASK	(1u << BUT3_PIO_IDX)
+	// Configuracoes do botoes plaquinha
+	#define BUT1_PIO			PIOD
+	#define BUT1_PIO_ID		16
+	#define BUT1_PIO_IDX		28
+	#define BUT1_PIO_IDX_MASK	(1u << BUT1_PIO_IDX)
+	
+	#define BUT2_PIO			PIOC
+	#define BUT2_PIO_ID		12
+	#define BUT2_PIO_IDX		31
+	#define BUT2_PIO_IDX_MASK	(1u << BUT2_PIO_IDX)
+	#define BUT3_PIO			PIOA
+	#define BUT3_PIO_ID		10
+	#define BUT3_PIO_IDX		19
+	#define BUT3_PIO_IDX_MASK	(1u << BUT3_PIO_IDX)
+	
+	volatile char but_flag;
 
 	//Defining note frequency
 	#define NOTE_C4  262   
@@ -317,6 +318,9 @@
 /************************************************************************/
 
 void init(void);
+void playMusic(int tempo[], int notes[], int size);
+void pio_enable_interrupt(Pio *p_pio, const uint32_t ul_mask);
+
 
 /************************************************************************/
 /* interrupcoes                                                         */
@@ -326,6 +330,10 @@ void init(void);
 /* funcoes                                                              */
 /************************************************************************/
 
+void but_callBack(void){
+	but_flag = 1;
+}
+
 // Função de inicialização do uC e config correta dos perifericos e pinos
 void init(void)
 {
@@ -334,6 +342,10 @@ void init(void)
 	
 	//desativa WatchDog Timer
 	WDT->WDT_MR = WDT_MR_WDDIS;
+	
+	//BUZZER
+	pmc_enable_periph_clk(BUZ_PIO_ID); //inicializa pio do buzzer
+	pio_set_output(BUZ_PIO, BUZ_PIO_IDX_MASK, 0, 0,0 );
 	
 	//Ativa o PIO na qual o LED foi conectado
 	// para que possamos controlar o LED
@@ -350,16 +362,39 @@ void init(void)
 	
 	// Inicializa PIO do botao
 	pmc_enable_periph_clk(BUT_PIO_ID);
+	pmc_enable_periph_clk(BUT1_PIO_ID);
+	pmc_enable_periph_clk(BUT2_PIO_ID);
+	pmc_enable_periph_clk(BUT3_PIO_ID);
 	
 	// configura pino ligado ao botão como entrada com um pull-up.
-	pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, PIO_DEFAULT);
+	pio_configure(BUT_PIO, PIO_INPUT, BUT_PIO_IDX_MASK, PIO_PULLUP);
+//	pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, PIO_DEFAULT);
+	pio_set_input(BUT1_PIO, BUT1_PIO_IDX_MASK, PIO_DEFAULT); //??? PIO DEFAULT?
+	pio_set_input(BUT2_PIO, BUT2_PIO_IDX_MASK, PIO_DEFAULT);
+	pio_set_input(BUT3_PIO_ID, BUT3_PIO_IDX_MASK, PIO_DEFAULT);
+	
+	//?
+	// Configura interrupção no pino referente ao botao e associa
+	// função de callback caso uma interrupção for gerada
+	// a função de callback é a: but_callback()
+	pio_handler_set(BUT_PIO, BUT_PIO_ID, BUT_PIO_IDX_MASK, PIO_IT_FALL_EDGE, but_callBack);
 	
 	//Ativar o pull-up
-	pio_pull_up(BUT_PIO, BUT_PIO_IDX_MASK, 1);
+	//pio_pull_up(BUT_PIO, BUT_PIO_IDX_MASK, 1);
+	pio_pull_up(BUT1_PIO, BUT1_PIO_IDX_MASK, 1);
+	pio_pull_up(BUT2_PIO, BUT2_PIO_IDX_MASK, 1);
+	pio_pull_up(BUT3_PIO, BUT3_PIO_IDX_MASK, 1);
 	
-	//BUZZER
-	pmc_enable_periph_clk(BUZ_PIO_ID); //inicializa pio do buzzer
-	pio_set_output(BUZ_PIO, BUZ_PIO_IDX_MASK, 0, 0,0 );
+	//?
+	// Ativa interrupção
+	pio_enable_interrupt(BUT_PIO, BUT_PIO_IDX_MASK);
+	
+	// Configura NVIC para receber interrupcoes do PIO do botao
+	// com prioridade 4 (quanto mais próximo de 0 maior)
+	NVIC_EnableIRQ(BUT_PIO_ID);
+	NVIC_SetPriority(BUT_PIO_ID, 4); // Prioridade 4
+	
+	
 }
 
 /************************************************************************/
@@ -410,19 +445,31 @@ int main(void)
 	pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga
 	pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
 	pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
+		
+	if (but_flag){
+		pio_clear(LED1_PIO, LED1_PIO_IDX_MASK); //liga led
+		playMusic(mario_theme_tempo, mario_theme_notes, mario_theme_size);
+		pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga led
+		
+		pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
+		playMusic(imperial_march_tempo, imperial_march_notes, imperial_march_size);
+		pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
+		
+		pio_clear(LED3_PIO, LED3_PIO_IDX_MASK);
+		playMusic(underworld_tempo, underworld_notes, underworld_size);
+		pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
+			
+		but_flag = 0;
+	}
+	
+	pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
+// 	pio_clear(LED_PIO,LED_PIO_IDX_MASK);
+// 	delay_ms(5000);
+	
+	
 
-	pio_clear(LED1_PIO, LED1_PIO_IDX_MASK); //liga led
-	playMusic(mario_theme_tempo, mario_theme_notes, mario_theme_size);
-	pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga led
 	
-	pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
-	playMusic(imperial_march_tempo, imperial_march_notes, imperial_march_size);
-	pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
-	
-	pio_clear(LED3_PIO, LED3_PIO_IDX_MASK);
-	playMusic(underworld_tempo, underworld_notes, underworld_size);
-	pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
 		
 	}//fim do while
-	return 0;
+	//return 0;
 }
