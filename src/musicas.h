@@ -122,15 +122,6 @@
 #define NOTE_D8  4699
 #define NOTE_DS8 4978
 
-// typedef struct ()
-// {
-// 	int *notes;
-// 	int *times;
-// 	int *size;
-	
-// }musica;
-
-
 int mario_theme_notes[] = { //by Prince @ princetronics.com
 	NOTE_E7, NOTE_E7, 0, NOTE_E7,
 	0, NOTE_C7, NOTE_E7, 0,

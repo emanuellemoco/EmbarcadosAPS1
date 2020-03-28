@@ -16,91 +16,91 @@
 /************************************************************************/
 /* includes                                                             */
 /************************************************************************/
-
 #include "asf.h"
 #include "musicas.h"
+// #include "gfx_mono_ug_2832hsweg04.h"
+// #include "gfx_mono_text.h"
 // #include "sysfont.h"
 
 /************************************************************************/
 /* defines                                                              */
 /************************************************************************/
 	
-	// Configuracoes do led same70
-	#define LED_PIO           PIOC                 // periferico que controla o LED
-	#define LED_PIO_ID        12                  // ID do periférico PIOC (controla LED)
-	#define LED_PIO_IDX       8                    // ID do LED no PIO
-	#define LED_PIO_IDX_MASK  (1 << LED_PIO_IDX)   // Mascara para CONTROLARMOS o LED
+// Configuracoes do led same70
+#define LED_PIO           PIOC                 // periferico que controla o LED
+#define LED_PIO_ID        12                  // ID do periférico PIOC (controla LED)
+#define LED_PIO_IDX       8                    // ID do LED no PIO
+#define LED_PIO_IDX_MASK  (1 << LED_PIO_IDX)   // Mascara para CONTROLARMOS o LED
+
+// Configuracoes dos LEDs
+#define LED1_PIO			PIOA
+#define LED1_PIO_ID			ID_PIOA
+#define LED1_PIO_IDX		0
+#define LED1_PIO_IDX_MASK	(1 << LED1_PIO_IDX)
+
+#define LED2_PIO			PIOC
+#define LED2_PIO_ID			ID_PIOC
+#define LED2_PIO_IDX		30
+#define LED2_PIO_IDX_MASK	(1 << LED2_PIO_IDX)
+
+#define LED3_PIO			PIOB
+#define LED3_PIO_ID			ID_PIOB
+#define LED3_PIO_IDX		2
+#define LED3_PIO_IDX_MASK	(1 << LED3_PIO_IDX)
+
+// Configuracoes do buzzer 
+#define BUZ_PIO			  PIOC
+#define BUZ_PIO_ID		  ID_PIOC
+#define BUZ_PIO_IDX		  13
+#define BUZ_PIO_IDX_MASK (1 << BUZ_PIO_IDX)
 	
-	 // Configuracoes dos LEDs
-	#define LED1_PIO			PIOA
-	#define LED1_PIO_ID			ID_PIOA
-	#define LED1_PIO_IDX		0
-	#define LED1_PIO_IDX_MASK	(1 << LED1_PIO_IDX)
+// Configuracoes do botao
+#define BUT_PIO			  PIOA
+#define BUT_PIO_ID		  ID_PIOA
+#define BUT_PIO_IDX		  11
+#define BUT_PIO_IDX_MASK (1u << BUT_PIO_IDX)
 
-	#define LED2_PIO			PIOC
-	#define LED2_PIO_ID			ID_PIOC
-	#define LED2_PIO_IDX		30
-	#define LED2_PIO_IDX_MASK	(1 << LED2_PIO_IDX)
+// Configuracoes do botoes OLED
+#define BUT1_PIO			PIOD
+#define BUT1_PIO_ID			16
+#define BUT1_PIO_IDX		28
+#define BUT1_PIO_IDX_MASK	(1u << BUT1_PIO_IDX)
 
-	#define LED3_PIO			PIOB
-	#define LED3_PIO_ID			ID_PIOB
-	#define LED3_PIO_IDX		2
-	#define LED3_PIO_IDX_MASK	(1 << LED3_PIO_IDX)
+#define BUT2_PIO			PIOC
+#define BUT2_PIO_ID			12
+#define BUT2_PIO_IDX		31
+#define BUT2_PIO_IDX_MASK	(1u << BUT2_PIO_IDX)
 
-	//.Configuracoes do buzzer 
- 	#define BUZ_PIO			  PIOC
- 	#define BUZ_PIO_ID		  ID_PIOC
- 	#define BUZ_PIO_IDX		  13
- 	#define BUZ_PIO_IDX_MASK (1 << BUZ_PIO_IDX)
-	 
-	// Configuracoes do botao
-	#define BUT_PIO			  PIOA
-	#define BUT_PIO_ID		  ID_PIOA
-	#define BUT_PIO_IDX		  11
-	#define BUT_PIO_IDX_MASK (1u << BUT_PIO_IDX)
+#define BUT3_PIO			PIOA
+#define BUT3_PIO_ID			10
+#define BUT3_PIO_IDX		19
+#define BUT3_PIO_IDX_MASK	(1u << BUT3_PIO_IDX)
 
-	// Configuracoes do botoes e led plaquinha
-	#define BUT1_PIO			PIOD
-	#define BUT1_PIO_ID		16
-	#define BUT1_PIO_IDX		28
-	#define BUT1_PIO_IDX_MASK	(1u << BUT1_PIO_IDX)
-	
-	#define BUT2_PIO			PIOC
-	#define BUT2_PIO_ID		12
-	#define BUT2_PIO_IDX		31
-	#define BUT2_PIO_IDX_MASK	(1u << BUT2_PIO_IDX)
-
-	#define BUT3_PIO			PIOA
-	#define BUT3_PIO_ID		10
-	#define BUT3_PIO_IDX		19
-	#define BUT3_PIO_IDX_MASK	(1u << BUT3_PIO_IDX)
-	
-	#define LED_PIO_ID ID_PIOC
-	#define LED_PIO PIOC
-	#define LED_PIN 8
-	#define LED_PIN_MASK (1 << LED_PIN)
-
-
-	volatile char pause;
-	volatile char but1_flag;
-	volatile char but2_flag;
-	volatile char but3_flag;
-
-	
 /************************************************************************/
 /* constants                                                            */
 /************************************************************************/
+typedef struct 
+{
+	int *notes;
+	int *times;
+	int size;
+	
+} musica;
 
 /************************************************************************/
 /* variaveis globais                                                    */
 /************************************************************************/
+volatile char pause;
+volatile char but1_flag;
+volatile char but2_flag;
+volatile char but3_flag;
 
 /************************************************************************/
 /* prototypes                                                           */
 /************************************************************************/
 
 void init(void);
-void playMusic(int tempo[], int notes[], int size);
+void playMusic(musica music);
 void pio_enable_interrupt(Pio *p_pio, const uint32_t ul_mask);
 void LED_init(int estado);
 
@@ -207,41 +207,50 @@ void init(void)
 //Inicializa o pino do LED
 void LED_init(int estado){
 	pmc_enable_periph_clk(LED_PIO_ID);
-	pio_set_output(LED_PIO, LED_PIN_MASK, estado, 0, 0);
+	pio_set_output(LED_PIO, LED_PIO_IDX_MASK, estado, 0, 0);
 };
 
 /************************************************************************/
 /* Main                                                                 */
 /************************************************************************/
 
-
-void playMusic(int tempo[], int notes[], int size){
+//so ter uma volatile char pros tres call back
+//cada funcao retorna um valor diferente
+//fazer case switch
+//se o id da musica for diferente do volatile char (apertou musica difernte)
+//dar break na musica e roda a funcao com o arg da musica
+void playMusic(musica music){
 	//ver se o botao flag = 1 -> pausa
-	for (int i=0 ;  i< size ; i++){
+	for (int i=0 ;  i< music.size ; i++){
+
 		//se a nota for 0, toca o 0 (silencio) pelo tempo
-		if (notes[i] == 0 ){
-			delay_ms(tempo[i]);
+		if (music.notes[i] == 0 ){
+			delay_ms(music.times[i]);
+			pio_set(LED_PIO, LED_PIO_IDX_MASK); //desliga
 		}
 		//nota diferente de 0
 		else {
-			float t_delay = 1000.0 /(int)(notes[i])	;
-			pio_clear(PIOC, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED
-			for (long j=0 ; j < (tempo[i]/t_delay ); j++){
+			float t_delay = 1000.0 /(int)(music.notes[i])	;
+			pio_clear(LED_PIO, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED (liga)
+			for (long j=0 ; j < (music.times[i]/t_delay); j++){
 				if (pause){
+					pio_set(LED_PIO, LED_PIO_IDX_MASK);//desliga
 					j--;
-				} else {
-				if (tempo[i]!= 0){
-					pio_set(PIOC, BUZ_PIO_IDX_MASK);
-					delay_us(t_delay*1000.0);
-					pio_clear(PIOC, BUZ_PIO_IDX_MASK);
-					delay_us(t_delay*1000.0);
-				}
-			}
+				} 
+				else {
+					//if (music.times[i]!= 0){
+						pio_set(BUZ_PIO, BUZ_PIO_IDX_MASK);
+						delay_us(t_delay*1000.0);
+						pio_clear(BUZ_PIO, BUZ_PIO_IDX_MASK);
+						delay_us(t_delay*1000.0);
+					//}
+				}	
+				pio_set(LED_PIO, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED (liga)
 			}
 		}
-		delay_us(85); //para dar um pause entre cada nota
 		
-		pio_set(PIOC, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED
+		//pio_set(LED_PIO, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED (desliga)
+		delay_us(75); //para dar um pause entre cada nota
 	}// fim primeiro for
 	
 }
@@ -256,49 +265,60 @@ int main(void)
 	but3_flag = 0;
 	pause = 0;
 
+	musica mario;
+	mario.notes = &mario_theme_notes;
+	mario.times = &mario_theme_tempo;
+	mario.size = sizeof(mario_theme_tempo) / sizeof(int);
+
+	musica imperialmarch;
+	imperialmarch.notes = &imperial_march_notes;
+	imperialmarch.times = &imperial_march_tempo;
+	imperialmarch.size = sizeof(imperial_march_tempo) / sizeof(int);
+
+	musica underworld;
+	underworld.notes = &underworld_notes;
+	underworld.times = &underworld_tempo;
+	underworld.size = sizeof(underworld_tempo) / sizeof(int);
+
+	//por padrao os leds estao ligados
+	pio_set(LED_PIO, LED_PIO_IDX_MASK);//desliga
+	pio_set(LED1_PIO, LED1_PIO_IDX_MASK); 
+	pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
+	pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
+	
 	// // Init OLED
 	// gfx_mono_ssd1306_init();
 
 	// /* Configura Leds */
 	// LED_init(0);
 
-	// gfx_mono_draw_string("Escolha", 50,16, &sysfont);
-
+  	// Escreve na tela um circulo e um texto
+    // gfx_mono_draw_filled_circle(20, 16, 16, GFX_PIXEL_SET, GFX_WHOLE);
+    // gfx_mono_draw_string("Choose 1, 2 or 3", 50,16, &sysfont);
 
 	// super loop
 	// aplicacoes embarcadas não devem sair do while(1).
-	
-	while(1){
-	
-	int mario_theme_size = sizeof(mario_theme_tempo) / sizeof(int);
-	int imperial_march_size = sizeof(imperial_march_tempo) / sizeof(int);
-	int underworld_size = sizeof(underworld_tempo) / sizeof(int);
-	
-	//por padrao os leds estao ligados
-	pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga
-	pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
-	pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
-		
+	while(1){		
 	if (but1_flag){
 		pio_clear(LED1_PIO, LED1_PIO_IDX_MASK); //liga led
-		playMusic(mario_theme_tempo, mario_theme_notes, mario_theme_size);
+		playMusic(mario);
 		pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga led
 		but1_flag = 0;
 	}
 	if (but2_flag){
 		pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
-	 	playMusic(imperial_march_tempo, imperial_march_notes, imperial_march_size);
+	 	playMusic(imperialmarch);
 	 	pio_set(LED2_PIO, LED2_PIO_IDX_MASK);		
 		but2_flag = 0;
 	}
 	if (but3_flag){
 		pio_clear(LED3_PIO, LED3_PIO_IDX_MASK);
-	 	playMusic(underworld_tempo, underworld_notes, underworld_size);
+	 	playMusic(underworld);
 	 	pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
 		but3_flag = 0;
 	}
 	
-	pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
+	//pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 // 	pio_clear(LED_PIO,LED_PIO_IDX_MASK);
 // 	delay_ms(5000);
 	
