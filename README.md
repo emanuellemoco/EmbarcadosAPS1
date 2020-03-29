@@ -22,7 +22,7 @@ Basicamente cada um dos três botões da placa exterior toca uma música diferen
 Explição do software:
 A primeira parte do código envolve basicamente em definições de todas as coisas que vamos usar na lógica posteriormente, como portas dos leds, botões e o buzzer assim como um struct para músicas, definições de interrupções(callbacks) e inicialização de portas.
 
-A função playMusic percorre a lista de notas e tempo tocando cada frequência pela duração dela, tendo em vista também que identifica o callback do pause e fica preso no loop até voltar o botão ser apertado novamente e por último ela também liga e desliga o led conforme a música.
+A função playMusic percorre a lista de notas e tempo tocando cada frequência pela duração dela, tendo em vista também que identifica o callback do pause e fica preso no loop até voltar o botão ser apertado novamente ou se outro botão for apertado assim dando break no loop para mudar a música e por último ela também liga e desliga o led conforme a música.
 
 A int main cria os objetos de cada música conforme a struct e roda o while(1) que identifica as flags de callback de cada botão da placa externa e chama a função playMusic para tocar a respectiva música.
 

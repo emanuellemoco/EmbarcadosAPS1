@@ -91,10 +91,7 @@ typedef struct
 /* variaveis globais                                                    */
 /************************************************************************/
 volatile char pause;
-volatile char but1_flag;
-volatile char but2_flag;
-volatile char but3_flag;
-
+volatile char but_flag;
 /************************************************************************/
 /* prototypes                                                           */
 /************************************************************************/
@@ -116,13 +113,13 @@ void but_callBack(void){
 	pause = !pause;
 }
 void but1_callBack(void){
-	but1_flag = 1;
+	but_flag = 1;
 }
 void but2_callBack(void){
-	but2_flag = 1;
+	but_flag = 2;
 }
 void but3_callBack(void){
-	but3_flag = 1;
+	but_flag = 3;
 }
 // Função de inicialização do uC e config correta dos perifericos e pinos
 void init(void)
@@ -220,6 +217,7 @@ void LED_init(int estado){
 //se o id da musica for diferente do volatile char (apertou musica difernte)
 //dar break na musica e roda a funcao com o arg da musica
 void playMusic(musica music){
+	volatile char current_butflag= but_flag;
 	//ver se o botao flag = 1 -> pausa
 	for (int i=0 ;  i< music.size ; i++){
 
@@ -229,6 +227,10 @@ void playMusic(musica music){
 			pio_set(LED_PIO, LED_PIO_IDX_MASK); //desliga
 		}
 		//nota diferente de 0
+		if (but_flag!= current_butflag)
+		{
+			break;
+			}
 		else {
 			float t_delay = 1000.0 /(int)(music.notes[i])	;
 			pio_clear(LED_PIO, LED_PIO_IDX_MASK);    // Coloca 0 no pino do LED (liga)
@@ -236,6 +238,7 @@ void playMusic(musica music){
 				if (pause){
 					pio_set(LED_PIO, LED_PIO_IDX_MASK);//desliga
 					j--;
+					
 				} 
 				else {
 					//if (music.times[i]!= 0){
@@ -252,7 +255,10 @@ void playMusic(musica music){
 		//pio_set(LED_PIO, LED_PIO_IDX_MASK);      // Coloca 1 no pino LED (desliga)
 		delay_us(75); //para dar um pause entre cada nota
 	}// fim primeiro for
-	
+	if (but_flag== current_butflag)
+	{
+		but_flag=0;
+	}
 }
 
 // Funcao principal chamada na inicalizacao do uC.
@@ -260,9 +266,7 @@ int main(void)
 {
 	// inicializa sistema e IOs
 	init();
-	but1_flag = 0;
-	but2_flag = 0;
-	but3_flag = 0;
+	but_flag = 0;
 	pause = 0;
 
 	musica mario;
@@ -299,23 +303,20 @@ int main(void)
 	// super loop
 	// aplicacoes embarcadas não devem sair do while(1).
 	while(1){		
-	if (but1_flag){
+	if (but_flag==1){
 		pio_clear(LED1_PIO, LED1_PIO_IDX_MASK); //liga led
 		playMusic(mario);
 		pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga led
-		but1_flag = 0;
 	}
-	if (but2_flag){
+	if (but_flag==2){
 		pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
 	 	playMusic(imperialmarch);
 	 	pio_set(LED2_PIO, LED2_PIO_IDX_MASK);		
-		but2_flag = 0;
 	}
-	if (but3_flag){
+	if (but_flag==3){
 		pio_clear(LED3_PIO, LED3_PIO_IDX_MASK);
 	 	playMusic(underworld);
 	 	pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
-		but3_flag = 0;
 	}
 	
 	//pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
