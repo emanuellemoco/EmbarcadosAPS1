@@ -45,3 +45,4 @@ Por último, temos também o arquivo musicas.h que define de todas as notas usad
 O código está com as músicas organizadas em vetores de structs (ponteiros), sendo que as funções recebem o struct que contém a música a ser tocada.
 
 Link para o vídeo do projeto funcionando:
+https://youtu.be/CG4L4twuDZA
