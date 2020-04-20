@@ -1,10 +1,10 @@
 //APS1
 /**
  * 5 semestre - Eng. da Computa��o - Insper
- * Rafael Corsi - rafael.corsi@insper.edu.br
  *
  * Projeto APS1 para a placa SAME70-XPLD
  *
+ * Feito por Emanuelle Moço e Luca Farah
  */
 
 /************************************************************************/
@@ -15,7 +15,6 @@
 #include "gfx_mono_text.h"
 #include "sysfont.h"
 #include "musicas.h"
-
 
 /************************************************************************/
 /* defines                                                              */
@@ -85,6 +84,7 @@ typedef struct
 	int *notes;
 	int *times;
 	int size;
+	char *title;
 	
 } musica;
 
@@ -190,12 +190,6 @@ void LED_init(int estado){
 /************************************************************************/
 /* Main                                                                 */
 /************************************************************************/
-
-//so ter uma volatile char pros tres call back
-//cada funcao retorna um valor diferente
-//fazer case switch
-//se o id da musica for diferente do volatile char (apertou musica difernte)
-//dar break na musica e roda a funcao com o arg da musica
 void playMusic(musica music){
 	volatile char current_butflag= but_flag;
 	//ver se o botao flag = 1 -> pausa
@@ -236,6 +230,15 @@ void playMusic(musica music){
 	}
 }
 
+void draw_music_title(char title[512]){
+	gfx_mono_draw_string("            ", 10,5, &sysfont);
+	gfx_mono_draw_string(title, 10,5, &sysfont);
+}
+
+void draw_choose(){
+	gfx_mono_draw_string("Choose 1,2,3", 10,5, &sysfont);
+}
+
 // Funcao principal chamada na inicalizacao do uC.
 int main(void)
 {
@@ -248,16 +251,19 @@ int main(void)
 	mario.notes = &mario_theme_notes;
 	mario.times = &mario_theme_tempo;
 	mario.size = sizeof(mario_theme_tempo) / sizeof(int);
+	mario.title = &"Mario Theme";
 
 	musica imperialmarch;
 	imperialmarch.notes = &imperial_march_notes;
 	imperialmarch.times = &imperial_march_tempo;
 	imperialmarch.size = sizeof(imperial_march_tempo) / sizeof(int);
+	imperialmarch.title = &"Imper March";
 
 	musica underworld;
 	underworld.notes = &underworld_notes;
 	underworld.times = &underworld_tempo;
 	underworld.size = sizeof(underworld_tempo) / sizeof(int);
+	underworld.title = &"Underworld";
 
 	//por padrao os leds estao ligados
 	pio_set(LED_PIO, LED_PIO_IDX_MASK);//desliga
@@ -271,42 +277,33 @@ int main(void)
 	//Configura Leds */
 	LED_init(0);
 
-  	// Escreve na tela um circulo e um texto
-    //gfx_mono_draw_filled_circle(20, 16, 16, GFX_PIXEL_SET, GFX_WHOLE);
-    gfx_mono_draw_string("Choose 1,2,3", 10,5, &sysfont);
+    draw_choose();
 
-	// super loop
-	// aplicacoes embarcadas n�o devem sair do while(1).
 	while(1){		
 		if (but_flag==1){
 			pio_clear(LED1_PIO, LED1_PIO_IDX_MASK); //liga led
-			gfx_mono_draw_string("            ", 10,5, &sysfont);
-			gfx_mono_draw_string("Mario Theme", 10,5, &sysfont);
+			draw_music_title(mario.title);
 			playMusic(mario);
 			pio_set(LED1_PIO, LED1_PIO_IDX_MASK); //desliga led
 			pio_set(LED_PIO, LED_PIO_IDX_MASK);
-			//gfx_mono_draw_string("            ", 10,5, &sysfont);
-			gfx_mono_draw_string("Choose 1,2,3", 10,5, &sysfont);
+			draw_choose();
 		}
 		else if (but_flag==2){
 			pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
-			gfx_mono_draw_string("            ", 10,5, &sysfont);
-			gfx_mono_draw_string("Imper March", 10,5, &sysfont);
+			draw_music_title(imperialmarch.title);
 			playMusic(imperialmarch);
 			pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
 			pio_set(LED_PIO, LED_PIO_IDX_MASK);	
-			//gfx_mono_draw_string("            ", 10,5, &sysfont);
-			gfx_mono_draw_string("Choose 1,2,3", 10,5, &sysfont);	
+			draw_choose();	
 		}
 		else if (but_flag==3){
 			pio_clear(LED3_PIO, LED3_PIO_IDX_MASK);
-			gfx_mono_draw_string("            ", 10,5, &sysfont);
-			gfx_mono_draw_string("Underworld", 10,5, &sysfont);
+			draw_music_title(underworld.title);
 			playMusic(underworld);
 			pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
 			pio_set(LED_PIO, LED_PIO_IDX_MASK);
-			//gfx_mono_draw_string("            ", 10,5, &sysfont);
-			gfx_mono_draw_string("Choose 1,2,3", 10,5, &sysfont);	
+			draw_choose();
+				
 		}	
 	}
 }
