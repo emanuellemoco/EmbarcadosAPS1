@@ -1,5 +1,6 @@
+//APS1
 /**
- * 5 semestre - Eng. da Computação - Insper
+ * 5 semestre - Eng. da Computaï¿½ï¿½o - Insper
  * Rafael Corsi - rafael.corsi@insper.edu.br
  *
  * Projeto APS1 para a placa SAME70-XPLD
@@ -22,7 +23,7 @@
 	
 // Configuracoes do led same70
 #define LED_PIO           PIOC                 // periferico que controla o LED
-#define LED_PIO_ID        12                   // ID do periférico PIOC (controla LED)
+#define LED_PIO_ID        12                   // ID do perifï¿½rico PIOC (controla LED)
 #define LED_PIO_IDX       8                    // ID do LED no PIO
 #define LED_PIO_IDX_MASK  (1 << LED_PIO_IDX)   // Mascara para CONTROLARMOS o LED
 
@@ -70,6 +71,12 @@
 #define BUT3_PIO_IDX		19
 #define BUT3_PIO_IDX_MASK	(1u << BUT3_PIO_IDX)
 
+// Prioridades dos botoes
+#define BUT_PRIORITY 	3
+#define BUT1_PRIORITY	4
+#define BUT2_PRIORITY 	4
+#define BUT3_PRIORITY 	4
+
 /************************************************************************/
 /* constants                                                            */
 /************************************************************************/
@@ -111,7 +118,7 @@ void but3_callBack(void){
 	but_flag = 3;
 }
 
-// Função de inicialização do uC e config dos perifericos e pinos
+// Funï¿½ï¿½o de inicializaï¿½ï¿½o do uC e config dos perifericos e pinos
 void init(void)
 {
 	//inicializa board clock
@@ -142,42 +149,36 @@ void init(void)
 	pmc_enable_periph_clk(BUT2_PIO_ID);
 	pmc_enable_periph_clk(BUT3_PIO_ID);
 	
-	// configura pino ligado ao botão como entrada com um pull-up.
+	// configura pino ligado ao botï¿½o como entrada com um pull-up.
 	pio_configure(BUT_PIO, PIO_INPUT, BUT_PIO_IDX_MASK, PIO_PULLUP);
 	pio_set_input(BUT1_PIO, BUT1_PIO_IDX_MASK, PIO_PULLUP); 
 	pio_set_input(BUT2_PIO, BUT2_PIO_IDX_MASK, PIO_PULLUP);
 	pio_set_input(BUT3_PIO_ID, BUT3_PIO_IDX_MASK, PIO_PULLUP);
 	
-	// Configura interrupção no pino referente ao botao e associa
-	// função de callback caso uma interrupção for gerada
+	// Configura interrupï¿½ï¿½o no pino referente ao botao e associa
+	// funï¿½ï¿½o de callback caso uma interrupï¿½ï¿½o for gerada
 	pio_handler_set(BUT_PIO, BUT_PIO_ID, BUT_PIO_IDX_MASK, PIO_IT_RISE_EDGE, but_callBack);
 	pio_handler_set(BUT1_PIO, BUT1_PIO_ID, BUT1_PIO_IDX_MASK, PIO_IT_FALL_EDGE, but1_callBack);
 	pio_handler_set(BUT2_PIO, BUT2_PIO_ID, BUT2_PIO_IDX_MASK, PIO_IT_FALL_EDGE, but2_callBack);
 	pio_handler_set(BUT3_PIO, BUT3_PIO_ID, BUT3_PIO_IDX_MASK, PIO_IT_FALL_EDGE, but3_callBack);
 	
-	//Ativar o pull-up
-	//pio_pull_up(BUT_PIO, BUT_PIO_IDX_MASK, 1);
-	pio_pull_up(BUT1_PIO, BUT1_PIO_IDX_MASK, 1);
-	pio_pull_up(BUT2_PIO, BUT2_PIO_IDX_MASK, 1);
-	pio_pull_up(BUT3_PIO, BUT3_PIO_IDX_MASK, 1);
-	
-	// Ativa interrupção
+	// Ativa interrupï¿½ï¿½o
 	pio_enable_interrupt(BUT_PIO, BUT_PIO_IDX_MASK);
 	pio_enable_interrupt(BUT1_PIO, BUT1_PIO_IDX_MASK);
 	pio_enable_interrupt(BUT2_PIO, BUT2_PIO_IDX_MASK);
 	pio_enable_interrupt(BUT3_PIO, BUT3_PIO_IDX_MASK);
 
 	// Configura NVIC para receber interrupcoes do PIO do botao
-	// com prioridade 4 (quanto mais próximo de 0 maior)
+	// com prioridade 4 (quanto mais prï¿½ximo de 0 maior)
 	NVIC_EnableIRQ(BUT_PIO_ID);
 	NVIC_EnableIRQ(BUT1_PIO_ID);
 	NVIC_EnableIRQ(BUT2_PIO_ID);
 	NVIC_EnableIRQ(BUT3_PIO_ID);
 
-	NVIC_SetPriority(BUT_PIO_ID, 3); // Prioridade 3
-	NVIC_SetPriority(BUT1_PIO_ID, 4); 
-	NVIC_SetPriority(BUT2_PIO_ID, 4);
-	NVIC_SetPriority(BUT3_PIO_ID, 4);
+	NVIC_SetPriority(BUT_PIO_ID, BUT_PRIORITY); // Prioridade 3
+	NVIC_SetPriority(BUT1_PIO_ID, BUT1_PRIORITY); 
+	NVIC_SetPriority(BUT2_PIO_ID, BUT2_PRIORITY);
+	NVIC_SetPriority(BUT3_PIO_ID, BUT3_PRIORITY);
 }
 
 //Inicializa o pino do LED
@@ -275,7 +276,7 @@ int main(void)
     gfx_mono_draw_string("Choose 1,2,3", 10,5, &sysfont);
 
 	// super loop
-	// aplicacoes embarcadas não devem sair do while(1).
+	// aplicacoes embarcadas nï¿½o devem sair do while(1).
 	while(1){		
 		if (but_flag==1){
 			pio_clear(LED1_PIO, LED1_PIO_IDX_MASK); //liga led
@@ -287,7 +288,7 @@ int main(void)
 			//gfx_mono_draw_string("            ", 10,5, &sysfont);
 			gfx_mono_draw_string("Choose 1,2,3", 10,5, &sysfont);
 		}
-		if (but_flag==2){
+		else if (but_flag==2){
 			pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
 			gfx_mono_draw_string("            ", 10,5, &sysfont);
 			gfx_mono_draw_string("Imper March", 10,5, &sysfont);
@@ -297,7 +298,7 @@ int main(void)
 			//gfx_mono_draw_string("            ", 10,5, &sysfont);
 			gfx_mono_draw_string("Choose 1,2,3", 10,5, &sysfont);	
 		}
-		if (but_flag==3){
+		else if (but_flag==3){
 			pio_clear(LED3_PIO, LED3_PIO_IDX_MASK);
 			gfx_mono_draw_string("            ", 10,5, &sysfont);
 			gfx_mono_draw_string("Underworld", 10,5, &sysfont);

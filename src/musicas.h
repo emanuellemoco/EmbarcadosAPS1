@@ -123,7 +123,7 @@
 #define NOTE_DS8 4978
 
 //Mario theme by Prince @ princetronics.com 
-int mario_theme_notes[] = { 
+const int mario_theme_notes[] = { 
 	NOTE_E7, NOTE_E7, 0, NOTE_E7,
 	0, NOTE_C7, NOTE_E7, 0,
 	NOTE_G7, 0, 0,  0,
@@ -150,7 +150,7 @@ int mario_theme_notes[] = {
 	NOTE_D7, NOTE_B6, 0, 0
 };
 
-int mario_theme_tempo[] = {
+const int mario_theme_tempo[] = {
 	83, 83, 83, 83,
 	83, 83, 83, 83,
 	83, 83, 83, 83,
@@ -178,7 +178,7 @@ int mario_theme_tempo[] = {
 };
 
 //Underworld melody  by Prince @ princetronics.com 
-int underworld_notes[] = {
+const int underworld_notes[] = {
 	NOTE_C4, NOTE_C5, NOTE_A3, NOTE_A4,
 	NOTE_AS3, NOTE_AS4, 0,
 	0,
@@ -200,7 +200,7 @@ int underworld_notes[] = {
 	0, 0, 0
 };
 
-int underworld_tempo[] = {
+const int underworld_tempo[] = {
 	83, 83, 83, 83,
 	83, 83, 166,
 	333,
@@ -222,12 +222,11 @@ int underworld_tempo[] = {
 	333, 333, 333
 };
 
-
 //marcha imperial by nicksort @github
-int imperial_march_notes[] = {
+const int imperial_march_notes[] = {
 	a,a,a,f,cH,a,f,cH,a,0,eH,eH,eH,fH,cH,gS,f,cH,a,0
 };
 
-int imperial_march_tempo[] = {
+const int imperial_march_tempo[] = {
 	500,500,500,350,150,500,350,150,650,500,500,500,500,350,150,500,350,150,650,500
 };
